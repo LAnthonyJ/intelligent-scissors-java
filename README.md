@@ -1,26 +1,26 @@
-![Intelligent Scissors 智能剪刀。左半片叶子显示 Sobel 梯度，右半片显示算法沿叶缘找到的红色轮廓。](live-wire-cover.png)
+![Intelligent Scissors. One half of a leaf shows the Sobel gradient and the other shows the computed contour.](live-wire-cover.png)
 
-**Intelligent Scissors** 是一个 Java Swing 交互式抠图工具。你在物体边缘点下锚点，它在锚点与光标之间寻找一条贴着边缘的路径。沿轮廓走一圈，就能把选区保存为透明 PNG。
+**Intelligent Scissors** is a Java Swing tool for cutting objects out of images. Click a point on an object's outline, then move the cursor along it. A red line follows the edges between your anchor and the cursor. Close the outline to save the selection as a transparent PNG.
 
-[看算法过程](#一片叶子的轮廓是怎么算出来的) · [运行项目](#运行项目) · [试用叶片样图](leaf-sample.png)
+[How it works](#how-it-works) · [Run the app](#run-the-app) · [Try the leaf sample](#try-the-leaf-sample)
 
-## 一片叶子的轮廓是怎么算出来的？
+## How it works
 
-![从左到右依次是原始叶片、Sobel 梯度图、经过八个锚点的最短路径、棋盘格上显示的透明抠图。](live-wire-stages.png)
+![Four views of the same leaf: the source image, its gradient, the shortest paths joining eight anchors, and the cutout on a checkerboard.](live-wire-stages.png)
 
-上图使用仓库自带的 [320 × 320 叶片样图](leaf-sample.png)。梯度、路径和透明选区均由本项目的 Java 类计算。白点标出这次演示使用的 8 个锚点，红线连接相邻锚点，棋盘格表示透明区域。
+The project's Java code produced the gradient map, contour, and cutout from this [320 × 320 leaf image](leaf-sample.png). The eight white dots are the anchors used for this example. The red line joins them, and the checkerboard shows where the output is transparent.
 
-| 阶段 | 从图中看什么 | 对应实现 |
+| Stage | What to look for | Implementation |
 | --- | --- | --- |
-| 读出边缘 | Sobel 算子分别计算水平与垂直方向的亮度变化。叶缘最亮，叶脉也留下了较弱的线。 | [ImageProcessor.java](dsbb_project/src/ImageProcessor.java) |
-| 沿边寻路 | 每个像素与周围最多 8 个像素相连。走入下一像素的代价为 `1 / (1 + 梯度强度)`。Dijkstra 从锚点计算累计代价最低的路径，所以红线可以绕着叶缘弯曲。 | [PathFinder.java](dsbb_project/src/PathFinder.java) |
-| 闭合并抠图 | 各段路径拼成多边形，只将选区内的原始像素画入透明画布。输出保留原图尺寸。 | [CroppingUtils.java](dsbb_project/src/CroppingUtils.java) |
+| Find edges | Sobel filters measure horizontal and vertical changes in brightness. The leaf's outer edge lights up, and its veins appear as fainter lines. | [ImageProcessor.java](dsbb_project/src/ImageProcessor.java) |
+| Trace the outline | Each pixel connects to up to eight neighbors. Moving to a neighbor costs `1 / (1 + gradient magnitude)`, so a strong edge is cheap to follow. Dijkstra's algorithm finds the path with the lowest total cost from the anchor to the cursor. | [PathFinder.java](dsbb_project/src/PathFinder.java) |
+| Make the cutout | The connected paths form a polygon. Pixels inside it are copied onto a transparent canvas with the same dimensions as the source image. | [CroppingUtils.java](dsbb_project/src/CroppingUtils.java) |
 
-**为什么还需要锚点？** 叶脉和外轮廓都是边缘。如果预览线沿叶脉抄了近路，就在想保留的叶缘上补一个锚点，让下一段路径从那里重新出发。
+**Where should you place the next anchor?** Both a vein and the outer rim can register as edges. If the red line starts to follow a vein, move back along the rim and click just before the line turns inward. The next segment will start there.
 
-## 运行项目
+## Run the app
 
-准备 **JDK 11 或更高版本**。仓库内含所需的 `algs4.jar`。从仓库根目录运行以下命令，启动类为 `IntelligentScissorsGUI`。
+Install **JDK 11 or later** and start in the repository root. The required `algs4.jar` is included.
 
 **Windows PowerShell**
 
@@ -33,7 +33,7 @@ java -cp "build;algs4/algs4.jar" IntelligentScissorsGUI
 ```
 
 <details>
-<summary>macOS / Linux 命令</summary>
+<summary>macOS and Linux</summary>
 
 ```sh
 cd dsbb_project
@@ -44,12 +44,12 @@ java -cp "build:algs4/algs4.jar" IntelligentScissorsGUI
 
 </details>
 
-## 试一次贴边抠图
+## Try the leaf sample
 
-<img src="workbench.png" width="426" alt="项目的 Swing 界面，红色预览线沿着叶片左侧从叶尖下端向上延伸。">
+<img src="workbench.png" width="426" alt="The Swing app tracing the lower left edge of the leaf in red.">
 
-1. 选择 **文件 → 打开图像**，打开仓库根目录的 `leaf-sample.png`。
-2. 单击叶缘设置第一个锚点，再沿边缘移动光标。观察红线，在转弯处单击，确定当前路径段。
-3. 绕回起点附近，双击闭合轮廓。在弹出的抠图窗口点击 **保存**，使用带 `.png` 后缀的文件名。
+1. Open **File → Open Image** (文件 → 打开图像) and select `leaf-sample.png` from the repository root.
+2. Click the leaf's edge to place your first anchor. Move the cursor along the rim and click near bends to fix each segment in place.
+3. Return near the first anchor and double-click to close the outline. In the cutout window, click **Save** (保存) and give the file a `.png` extension.
 
-当前版本建议先用**方形图片**体验。路径数组的初始化按图像高度遍历第一维，处理非方形图片时可能出现路径不完整或数组越界。
+For this version, use a **square image**. The pathfinder initializes the first dimension of its arrays using the image height. On rectangular inputs this can leave paths incomplete or cause an out-of-bounds error.
