@@ -1,4 +1,4 @@
-![Intelligent Scissors. One half of a leaf shows the Sobel gradient and the other shows the computed contour.](live-wire-cover.png)
+![Intelligent Scissors. One half of a leaf shows the Sobel gradient and the other shows the computed contour.](live-wire-cover.png?v=7f6c8cc)
 
 **Intelligent Scissors** is a Java Swing tool for cutting objects out of images. Click a point on an object's outline, then move the cursor along it. A red line follows the edges between your anchor and the cursor. Close the outline to save the selection as a transparent PNG.
 
@@ -6,7 +6,7 @@
 
 ## How it works
 
-![Four views of the same leaf: the source image, its gradient, the shortest paths joining eight anchors, and the cutout on a checkerboard.](live-wire-stages.png)
+![Four views of the same leaf: the source image, its gradient, the shortest paths joining eight anchors, and the cutout on a checkerboard.](live-wire-stages.png?v=31b504f)
 
 The project's Java code produced the gradient map, contour, and cutout from this [320 × 320 leaf image](leaf-sample.png). The eight white dots are the anchors used for this example. The red line joins them, and the checkerboard shows where the output is transparent.
 
@@ -46,7 +46,7 @@ java -cp "build:algs4/algs4.jar" IntelligentScissorsGUI
 
 ## Try the leaf sample
 
-<img src="workbench.png" width="426" alt="The Swing app tracing the lower left edge of the leaf in red.">
+<img src="workbench.png?v=1283548" width="426" alt="English-labeled preview of the Swing app tracing the lower left edge of the leaf in red.">
 
 1. Open **File → Open Image** (文件 → 打开图像) and select `leaf-sample.png` from the repository root.
 2. Click the leaf's edge to place your first anchor. Move the cursor along the rim and click near bends to fix each segment in place.
